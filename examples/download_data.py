@@ -7,7 +7,8 @@
 Files that already exist are skipped. Every dataset is fetched from its original publisher; the licences differ
 (see the table printed by --list) and two of them allow non-commercial research only.
 
-Needs Python 3.10+ and `duckdb` (for the incident warehouse of notebook 02 and to convert HoH from Parquet). The PlanetCare tickets of notebooks 03 and 06 are not public and are not downloaded.
+Needs Python 3.10+ and `duckdb` (for the incident warehouse of notebook 02 and to convert HoH from Parquet).
+The PlanetCare tickets of notebooks 03 and 06 are a generated dataset stored in the repository.
 """
 import argparse
 import csv

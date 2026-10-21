@@ -9,6 +9,12 @@
 !/examples/*.ipynb
 !/examples/*.py
 !/examples/README.md
+!/examples/data/
+/examples/data/*
+!/examples/data/PLANETCARE.md
+!/examples/data/planetcare_tickets.json
+!/examples/data/planetcare_kb.json
+!/examples/data/planetcare_wiki/
 
 /paper/*
 !/paper/graphs-for-llm-agents-evaluation.tex

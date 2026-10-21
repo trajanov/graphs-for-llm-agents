@@ -17,7 +17,9 @@ generation and guardrails.
 
 ## Data
 
-No data is stored in this repository. To fetch each dataset from its original publisher into `examples/data/`
+The only data stored in this repository is the PlanetCare tickets used by notebooks 03 and 06. This is a
+generated (synthetic) dataset; see [`examples/data/PLANETCARE.md`](examples/data/PLANETCARE.md). To fetch every other
+dataset from its original publisher into `examples/data/`
 (about 1.5 GB), run:
 
 ```bash
@@ -27,8 +29,7 @@ python download_data.py --list     # datasets, notebooks and licences
 ```
 
 [`examples/README.md`](examples/README.md#datasets-data) lists the sources and licences. Two benchmarks allow
-non-commercial research only: LoCoMo (CC BY-NC 4.0) and BenchmarkQED (Microsoft Research License). The PlanetCare
-tickets used by notebooks 03 and 06 are not public.
+non-commercial research only: LoCoMo (CC BY-NC 4.0) and BenchmarkQED (Microsoft Research License).
 
 The response caches and the archive of LLM requests and responses (about 5 GB) are not in the repository either;
 they are available from the author on request. Without them a notebook shows its saved outputs, and you can re-run
