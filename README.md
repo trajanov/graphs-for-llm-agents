@@ -42,7 +42,7 @@ it as follows (both need `OPENAI_API_KEY`):
 ## Licence
 
 - Code (notebooks and scripts): [MIT](LICENSE).
-- The report in `paper/` and the PlanetCare data set: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- The report in `paper/` and the PlanetCare data set: [CC BY 4.0](LICENSE-CC-BY-4.0.md).
 - Data sets fetched by `download_data.py` keep their publishers' licences.
 
 Both licences allow reuse, including commercial use, provided the author is credited. To cite this work:

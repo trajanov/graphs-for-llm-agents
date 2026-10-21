@@ -19,13 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
--------------------------------------------------------------------------------
-
-The report in paper/ and the PlanetCare data set in examples/data/ (PLANETCARE.md,
-planetcare_*.json, planetcare_wiki/) are licensed under the Creative Commons
-Attribution 4.0 International License (CC BY 4.0):
-https://creativecommons.org/licenses/by/4.0/
-
-Third-party data sets fetched by examples/download_data.py keep their own licences;
-see examples/README.md.
