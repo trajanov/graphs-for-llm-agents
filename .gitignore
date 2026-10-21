@@ -1,0 +1,19 @@
+# Whitelist: only code, notebooks and the paper are versioned.
+/*
+!/README.md
+!/.gitignore
+!/examples/
+!/paper/
+
+/examples/*
+!/examples/*.ipynb
+!/examples/*.py
+!/examples/README.md
+
+/paper/*
+!/paper/graphs-for-llm-agents-evaluation.tex
+!/paper/graphs-for-llm-agents-evaluation.pdf
+!/paper/references.bib
+
+.DS_Store
+__pycache__/
