@@ -38,3 +38,15 @@ it as follows (both need `OPENAI_API_KEY`):
 
 - `SMASH_MODE=test` runs a small live sample;
 - `SMASH_MODE=batch` recomputes everything through the Batch API.
+
+## Licence
+
+- Code (notebooks and scripts): [MIT](LICENSE).
+- The report in `paper/` and the PlanetCare data set: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Data sets fetched by `download_data.py` keep their publishers' licences.
+
+Both licences allow reuse, including commercial use, provided the author is credited. To cite this work:
+
+> Dimitar Trajanov. *Where Do Knowledge Graphs Help LLM Agents? Nineteen Experiments, from Hand-Built Examples to
+> Benchmarks with Thousands of Questions.* Companion report to the 2nd SMASHING Workshop, October 2026.
+> https://github.com/trajanov/graphs-for-llm-agents

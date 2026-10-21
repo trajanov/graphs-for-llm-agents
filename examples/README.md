@@ -75,7 +75,7 @@ files are skipped.
 | Name | Path | Notebooks | Source | Licence |
 | :--- | :--- | :--- | :--- | :--- |
 | `aura` | `aura_helpdesk.json` | 01, 05, 07, 18 | [AlexisBalayre/AuraHelpdeskGraph](https://github.com/AlexisBalayre/AuraHelpdeskGraph): the sample CSVs, with relationships rebuilt from its Neo4j load script | none stated |
-| — | `planetcare_*` | 03, 06 | **Generated (synthetic) dataset** created by the author for teaching, included in this repository; see [`data/PLANETCARE.md`](data/PLANETCARE.md) | — |
+| — | `planetcare_*` | 03, 06 | **Generated (synthetic) dataset** created by the author for teaching, included in this repository; see [`data/PLANETCARE.md`](data/PLANETCARE.md) | CC BY 4.0 |
 | `runbooks` | `runbooks/` | 04 | [AriaAICompany/incident-rag-runbooks](https://huggingface.co/datasets/AriaAICompany/incident-rag-runbooks) | CC BY 4.0 |
 | `telecom` | `telecom_workflow/` | 05 | [τ²-bench](https://github.com/sierra-research/tau2-bench) telecom domain | MIT |
 | `incidents` | `servicenow_incidents.duckdb` | 02 | [UCI incident management event log](https://archive.ics.uci.edu/dataset/498/incident+management+process+enriched+event+log): its first 119,998 rows, 20,769 incidents | CC BY 4.0 |

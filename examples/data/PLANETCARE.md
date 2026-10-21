@@ -21,3 +21,9 @@ notebook 03:
 - 183 tickets carry only 181 distinct IDs, because `PC-00029` and `PC-00030` each appear twice.
 - Version strings are inconsistent (`1.0` vs `v1.0`).
 - Some tickets are in French.
+
+## Licence
+
+The PlanetCare data set is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Please cite it as:
+Dimitar Trajanov, *PlanetCare: a generated hospital-software support-ticket data set*, 2026,
+https://github.com/trajanov/graphs-for-llm-agents.
