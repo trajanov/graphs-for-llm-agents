@@ -9,6 +9,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{threeparttable}
+\usepackage{float}
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{pgfplots}
@@ -42,22 +43,20 @@
 Knowledge graphs are widely proposed as a remedy for the weaknesses of retrieval-augmented LLM agents: multi-hop
 reasoning, questions about whole collections, facts that change over time, unverifiable query generation and
 untrusted content. We test these claims in nineteen executable experiments. Ten smaller notebooks
-(up to 300 questions, \texttt{gpt-4o-mini}) illustrate each claim; nine \emph{confidence runs} then re-test them on
-public benchmarks with 115--4{,}072 questions each, stronger baselines and paired 95\% confidence intervals
-(\texttt{gpt-6-luna} without reasoning, about 160{,}000 LLM calls, about \$29 in total). Graphs give large, reliable
-gains when the answer depends on \emph{structure}: aggregates over typed records (+51\pp\ on templated helpdesk
-questions), whole-collection questions (+19.8\pp\ of expected content), and multi-hop questions over relational data
-(+57 to +67 Hits@1 at two and three hops on MetaQA, even with a graph the LLM extracted from text, which scored 11--24
-points below the curated graph). Elsewhere gains are small or absent: +4.7 and +11.7 F1 on MuSiQue and
-2WikiMultiHopQA; +1.0 and +2.7 points on GraphRAG-Bench with HippoRAG2-style ranking, and losses with a simpler graph
-retriever; $-50$\pp\ on single-fact lookups; no gain on helpdesk questions written without the graph ($-8$\pp, not
-reliable). Baselines that encode the same information in simpler form match the graph: document dates match a temporal
-graph ($-0.2$\pp), and stating a schema's naming rules in the prompt recovers all but 2--5 points of an ontology
-checker's +61.5\pp. GraphRAG's global search loses 30\pp\ on local questions, where its local search nearly matches
-vector retrieval. These findings agree with recent RAG-versus-GraphRAG comparisons and extend them to agent memory,
-query checking and guardrails. We conclude that graphs should be adopted per question type, against the strongest
-cheap baseline; their robust value lies in structure, and rules enforced in code add a guarantee of zero violations
-rather than a large gain in accuracy.
+(up to 300 questions, \texttt{gpt-4o-mini}) illustrate each claim; nine \emph{confidence runs} re-test them on
+public benchmarks with 115--4{,}072 questions each, the strongest cheap baselines we could identify and paired 95\%
+confidence intervals (\texttt{gpt-6-luna} without reasoning, about 160{,}000 LLM calls, about \$31 in total). Graphs
+give large, reliable gains when the answer depends on \emph{structure}: aggregates over typed records (+51\pp\ on
+templated helpdesk questions), whole-collection questions (+19.8\pp\ of expected content) and multi-hop questions over
+relational data (+57 to +67 Hits@1 at two and three hops on MetaQA, even with a graph extracted by the LLM). Elsewhere
+gains are small or absent: +4.7 and +11.7 F1 on MuSiQue and 2WikiMultiHopQA, at most +2.7 points on GraphRAG-Bench,
+$-50$\pp\ on single-fact lookups, $-30$\pp\ for GraphRAG's global search on local questions, and no gain on helpdesk
+questions written without the graph. Simpler baselines given the same information match the graph: document dates
+match a temporal graph, and stating a schema's naming rules in the prompt recovers all but 2--5 points of an ontology
+checker's +61.5\pp. The findings agree in direction with recent RAG-versus-GraphRAG comparisons, with smaller graph
+gains, and extend them to agent memory, query checking and guardrails. Graphs should be adopted per question type,
+against the strongest cheap baseline; their robust value lies in structure, and rules enforced in code add a guarantee
+of zero violations rather than a large gain in accuracy.
 \end{abstract}
 
 % =====================================================================================
@@ -78,8 +77,8 @@ against plain top-$k$ retrieval, or on small samples.
 This report collects the results of nineteen notebooks written as companions to a lecture on agentic systems and
 knowledge graphs. Notebooks 01--07 are instructional: small, realistic data sets on which each claim can be
 observed and inspected. Notebooks 08--10 repeat three comparisons on public benchmarks. Notebooks 11--19 are
-confidence runs designed to test each claim at scale: every one uses a public benchmark or a templated question set
-large enough for narrow intervals, adds the strongest cheap baseline we could identify, and archives every LLM
+confidence runs designed to test each claim at scale: every one uses a public benchmark or a constructed question
+set large enough for narrow intervals, adds the strongest cheap baseline we could identify, and archives every LLM
 request and response.
 
 \paragraph{Contributions.}
@@ -89,8 +88,8 @@ request and response.
         (Sections~\ref{sec:structure}--\ref{sec:guardrails}). Prior comparisons cover mainly the first two.
   \item Baselines that give plain retrieval the same information in simpler form (document dates, the full
         conversation history, the schema's rules in the prompt, retry on error), which match or nearly match the
-        graph in several cases, and stronger graph methods (HippoRAG2-style ranking, GraphRAG local search) where our
-        first implementation lost (Section~\ref{sec:discussion}).
+        graph in several cases, and stronger graph methods (HippoRAG2-style ranking, GraphRAG local search) where a simpler
+        graph method lost (Section~\ref{sec:discussion}).
   \item A decision guide stating for which question types a graph is worth its indexing and per-query cost
         (Table~\ref{tab:verdict}).
 \end{itemize}
@@ -155,7 +154,8 @@ every passage; entities with embedding similarity $\geq 0.9$ are linked by synon
 PageRank~\cite{haveliwala2002ppr} seeded at the question's entities ranks passages~\cite{gutierrez2025hipporag2}.
 
 \paragraph{GraphRAG community summaries.} Entities and relations are extracted from every chunk and clustered with
-Louvain~\cite{blondel2008louvain}, split recursively to at most 25 entities. Each community is summarised in
+Louvain~\cite{blondel2008louvain}, split recursively to at most 25 entities (GraphRAG itself uses hierarchical
+Leiden clustering). Each community is summarised in
 advance; a question is answered map-reduce style over all summaries~\cite{edge2024graphrag}.
 
 \paragraph{Bi-temporal graph memory.} Facts extracted from conversations or documents carry validity intervals;
@@ -191,14 +191,16 @@ questions of one database whose 45\,MB graph is too large for our in-memory SPAR
 gold query fails to execute, leaving 563 questions over 19 graphs. All \nb{17} systems receive the full schema,
 including each graph's namespace, in the prompt. For \nb{19} we use the 18{,}127 WikiMovies articles (first
 paragraphs) from which MetaQA's knowledge base was built~\cite{miller2016kvmemnn}, and sample 300 MetaQA test
-questions per hop (seed 7) whose topic entity is a film with an article, so this sample differs from \nb{08}'s.
+questions per hop (seed 7) whose topic entity is a film with an article (72\% of one-hop, 21\% of two-hop and nearly
+all three-hop test questions), so this sample differs from \nb{08}'s.
 
-\paragraph{Models.} Notebooks 01--10 use \texttt{gpt-4o-mini}; notebooks 11--19 use \texttt{gpt-6-luna} (the API version
-available in October 2026) with reasoning disabled; results with reasoning enabled, or with other models, may
-differ. All calls use temperature 0 and seed 7; because API outputs are not guaranteed to be
+\paragraph{Models.} Notebooks 01--10 use \texttt{gpt-4o-mini}; notebooks 11--19 use the API model \texttt{gpt-6-luna} with
+\texttt{reasoning\_effort} set to \texttt{none}. The identifier has no date suffix, so results with later versions of
+the model, with reasoning enabled or with other models may differ. All calls use temperature 0 and seed 7; because API outputs are not guaranteed to be
 deterministic even with a fixed seed, reproducibility rests on the response cache described below. Confidence runs are executed through the OpenAI
-Batch API; agent loops run in lock-step, one batch per step. Stages added after review whose batch jobs stalled for
-hours, including the agent loops of \nb{19}, were sent through the standard API with identical request bodies.
+Batch API; agent loops run in lock-step, one batch per step. Stages of \nb{14} and 16--19 whose batch jobs
+stalled for hours, including the agent loops of \nb{19}, were sent through the standard API with identical request
+bodies.
 
 \paragraph{Scoring.} Exact match, F1 or execution accuracy wherever a gold answer can be computed; LLM judges
 only for open-ended answers, with the benchmark's own judge prompt where one exists and both presentation orders
@@ -207,11 +209,24 @@ for pairwise comparisons. The judge is the same model as the answering model (\t
 orders). Answers can still differ in style---GraphRAG answers, for example, cite community reports---so the judge may
 be able to infer the method.
 
+\paragraph{Second judge.} To test for self-preference, we re-scored with a judge of another model generation,
+\texttt{gpt-4.1-2025-04-14}, sending the identical judge requests (1{,}600 calls, about \$2.7): all 300 assertion
+checks and 100 pairwise comparisons of \nb{16}, and the statement classification of all three retrievers for 200
+random questions per domain of \nb{14} (seed 7; statement splitting and the similarity term unchanged). Per-answer
+scores agree closely ($r=0.89$ for \nb{16} pass rates, 0.83--0.84 for \nb{14} correctness). The \nb{16} conclusions
+hold: global search gains +13.6 [+9.3, +18.3] instead of +19.8 on global questions and loses $-27.3$ instead of
+$-30.3$ on local questions, and local search stays at $-4.3$ against vector retrieval; the second judge also prefers
+GraphRAG for comprehensiveness, diversity and empowerment (86\%, 83\%, 76\%) and, unlike the first, for relevance
+(60\% [55, 66]). On the \nb{14} sample, every graph-minus-vector difference keeps its sign under both judges except
+that of the HippoRAG2-style retriever on medical questions: +1.2 [$-1.6$, +4.1] with the first judge, $-1.5$
+[$-3.8$, +0.8] with the second. Its medical gain, already borderline after the Bonferroni check, therefore depends on
+the judge; its novel gain (+2.5 and +3.9 on the sample) does not.
+
 \paragraph{Statistics.} Single accuracies carry Wilson intervals~\cite{wilson1927}; differences between methods
-on the same questions carry paired bootstrap intervals~\cite{efron1993bootstrap}. A difference is called
+on the same questions carry paired bootstrap intervals with 5{,}000 resamples~\cite{efron1993bootstrap}. A difference is called
 \emph{reliable} when its 95\% interval excludes zero. Intervals are not adjusted for multiple comparisons. As a
-check, we widened each of the 26 headline intervals in Figure~\ref{fig:forest} by the Bonferroni factor
-$z_{0.05/52}/z_{0.025}\approx 1.58$ (normal approximation): 23 keep their classification, while three reliable
+check, we widened each of the 28 headline intervals in Figure~\ref{fig:forest} by the Bonferroni factor
+$z_{0.05/56}/z_{0.025}\approx 1.59$ (normal approximation): 25 keep their classification, while three reliable
 differences become \emph{borderline}: the +16\pp\ gain on verified fixes (\nb{18}), and the $-1.5$-point loss of the
 simple graph retriever and the +1.0-point gain of the HippoRAG2-style retriever on GraphRAG-Bench medical (\nb{14}). Subgroup results in Tables~\ref{tab:multihop}--\ref{tab:memory} should be read
 with the same caution.
@@ -265,10 +280,10 @@ report each group of experiments.
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.64\textwidth, height=16.4cm,
+  width=0.64\textwidth, height=17.4cm,
   xmin=-72, xmax=80,
-  ymin=0.3, ymax=26.7, y dir=reverse,
-  ytick={1,...,26},
+  ymin=0.3, ymax=28.7, y dir=reverse,
+  ytick={1,...,28},
   yticklabels={
     {Relational questions (18)},
     {Verified fix (18)},
@@ -292,10 +307,12 @@ report each group of experiments.
     {Stale facts vs.\ vector (12)},
     {Stale facts vs.\ vector + dates (12)},
     {LongMemEval vs.\ vector (15)},
+    {LongMemEval vs.\ full history (15)},
     {LoCoMo vs.\ vector (15)},
     {LoCoMo vs.\ full history (15)},
     {SPARQL checker vs.\ retry (17)},
-    {SPARQL checker vs.\ rules in prompt (17)}},
+    {SPARQL checker vs.\ rules in prompt (17)},
+    {SPARQL checker vs.\ rules + retry (17)}},
   yticklabel style={font=\footnotesize},
   xticklabel style={font=\footnotesize},
   xlabel={Graph method minus baseline (percentage points or F1 points), 95\% CI},
@@ -320,9 +337,10 @@ report each group of experiments.
     (1.0,18) += (0.9,0) -= (0.9,0)
     (2.7,19) += (1.0,0) -= (0.9,0)
     (27.0,20) += (4.2,0) -= (4.2,0)
-    (6.6,23) += (2.4,0) -= (2.4,0)
-    (61.5,25) += (4.2,0) -= (4.5,0)
-    (5.0,26) += (2.6,0) -= (2.5,0)
+    (7.8,23) += (4.8,0) -= (4.8,0)
+    (6.6,24) += (2.4,0) -= (2.4,0)
+    (61.5,26) += (4.2,0) -= (4.5,0)
+    (5.0,27) += (2.6,0) -= (2.5,0)
   };
 \addplot+[only marks, mark=square*, color=gloss, mark options={fill=gloss},
   error bars/.cd, x dir=both, x explicit]
@@ -330,7 +348,7 @@ report each group of experiments.
     (-50,3) += (17,0) -= (17,0)
     (-30.3,13) += (11.6,0) -= (12.7,0)
     (-1.5,16) += (1.1,0) -= (1.0,0)
-    (-5.5,24) += (2.1,0) -= (2.1,0)
+    (-5.5,25) += (2.1,0) -= (2.1,0)
   };
 \addplot+[only marks, mark=diamond*, color=gnull, mark options={fill=gnull},
   error bars/.cd, x dir=both, x explicit]
@@ -341,6 +359,7 @@ report each group of experiments.
     (-0.7,17) += (1.2,0) -= (1.2,0)
     (-0.2,21) += (2.2,0) -= (2.2,0)
     (3.4,22) += (4.0,0) -= (4.2,0)
+    (2.0,28) += (2.4,0) -= (2.5,0)
   };
 \end{axis}
 \end{tikzpicture}
@@ -350,7 +369,7 @@ points of accuracy or Hits@1 (18, 19), of expected content (16) or of answer cor
 $^\dagger$One subgroup out of four to eight, chosen for illustration; Tables~\ref{tab:multihop}--\ref{tab:grb} list
 all subgroups, and of the eight GraphRAG-Bench cells only this one favours the simple graph retriever. The helpdesk
 families and question sets (18), MetaQA hops (19) and the global and local question sets (16) are designed groups,
-all shown. Rows added after review: 4, 5--7, 14, 18--19 and 26.}
+all shown.}
 \label{fig:forest}
 \end{figure}
 
@@ -380,7 +399,11 @@ genres, but only 7\% of tags and no IMDb ratings, which the articles rarely stat
 articles (Table~\ref{tab:metaqa}). The extracted graph kept most of the advantage: +13.3, +67.0 and +56.7 Hits@1 over
 vector retrieval at one, two and three hops, with the curated graph a further 11--24 points higher. Vector retrieval
 fails at two and three hops (9\% and 12\%) because the answers are attributes of other films, which no article about
-the topic film contains. The agents used 1{,}900--2{,}200 tokens per question against 1{,}600 for vector retrieval;
+the topic film contains. The curated graph scores lower at one hop than at two because for 11\% of the sampled
+one-hop questions the gold answers cannot be reached along the question's relation in MetaQA's own knowledge base.
+Restricted to questions whose relation path avoids tags and IMDb ratings, which the articles do not state (240, 300
+and 163 questions per hop), the picture is unchanged; at one hop, for example, vector retrieval, the extracted and
+the curated graph reach 70\%, 85\% and 96\%. The agents used 1{,}900--2{,}200 tokens per question against 1{,}600 for vector retrieval;
 extraction cost \$0.92 for all articles.
 
 \nb{18} repeats \nb{01} with 156 templated questions whose answers are computed from the graph
@@ -494,7 +517,8 @@ the same extracted relations (synonym edges, personalised PageRank seeded by the
 dense passage scores in the reset vector, top-8 passages; without HippoRAG2's LLM fact filter). Its evidence recall
 is close to vector retrieval (medical 90--97\% against 91--98\% for non-creative questions; novel 86--95\% against
 85--93\%), and it is reliably better than vector retrieval in both domains, though by little: +1.0 [+0.1, +1.9] on
-medical and +2.7 [+1.8, +3.7] on novel (Table~\ref{tab:grb}). Its largest gain is on novel fact retrieval (+3.8), where
+medical, which does not survive a second judge (Section~\ref{sec:setup}), and +2.7 [+1.8, +3.7] on novel
+(Table~\ref{tab:grb}). Its largest gain is on novel fact retrieval (+3.8), where
 the simple graph retriever lost most; on novel complex reasoning it gains +1.6, about as much as the simple retriever.
 The losses of the simple retriever were thus a property of that retriever. A graph-ranked retriever that keeps the
 passages in context does not lose to vector retrieval, but its gains remain far below the +10 to +13 points reported
@@ -503,8 +527,8 @@ for the best methods~\cite{xiang2025graphragbench}; MS-GraphRAG over all 4{,}072
 On BenchmarkQED podcast transcripts (\nb{16}), GraphRAG with 1{,}185 community reports covered 76.5\% of the
 expected assertions of 50 global questions against 56.7\% for vector top-20 (+19.8 [+14.9, +24.6]), and a pairwise
 judge preferred it for comprehensiveness (91\%), diversity (92\%) and empowerment (90\%), but not for relevance
-(45\%). On 50 local questions about single episodes, the order reverses: 100\% against 69.7\% ($-30.3$ [$-43.0$,
-$-18.7$]). GraphRAG's local search mode, which we added after review, builds one context from the entities that
+(45\%; a second judge preferred it at 60\%, Section~\ref{sec:setup}). On 50 local questions about single episodes, the order reverses: 100\% against 69.7\% ($-30.3$ [$-43.0$,
+$-18.7$]). GraphRAG's local search mode builds one context from the entities that
 match the question, their relations, the reports of their communities and the source chunks linked to them
 (GraphRAG's default shares, about 8{,}600 prompt tokens against 10{,}700 for vector retrieval). On the local questions
 it recovered most of the loss: 95.7\%, $-4.3$ [$-10.3$, 0.0] against vector retrieval and +26.0 [+14.0, +39.0]
@@ -518,7 +542,7 @@ retrieval and for local search.
 \centering
 \small
 \caption{GraphRAG-Bench in full (\nb{14}): answer correctness ($\times 100$). Vector: top-8 chunks. Graph: top-5
-chunks plus relations among top entities. HippoRAG2-style (added after review): top-8 chunks ranked by personalised
+chunks plus relations among top entities. HippoRAG2-style: top-8 chunks ranked by personalised
 PageRank over the same extracted relations.}
 \label{tab:grb}
 \footnotesize\setlength{\tabcolsep}{3.2pt}
@@ -609,7 +633,7 @@ names into 45 modules with 45 LLM calls, instead of 1{,}891 pairwise calls; one 
 human decision. Free extraction produced 19 issue labels, later merged into 6, whereas a fixed label list forced 24
 of 29 tickets into ``Other''. All 44 extracted facts passed a shape check, yet 3 were not supported by the text
 they cited. The confidence runs confirm that extraction dominates the cost of graph methods: the graph index of
-\nb{11} required 17{,}775 LLM calls (\$2.21) against \$0.19 for answering all 4{,}000 questions with both methods.
+\nb{11} required 17{,}775 LLM calls (\$2.21) against \$0.19 for answering all 2{,}000 questions with both methods.
 
 % -------------------------------------------------------------------------------------
 \subsection{Governed Query Generation}
@@ -619,13 +643,13 @@ On 15 questions over the Aura RDF graph (\nb{07}), ontology checks with up to th
 3/15 to 10/15 and converted one wrong answer into ``unknown''; four queries passed every check yet were wrong.
 
 On Spider4SSC (\nb{17}; 563 questions over 19 RDF graphs), one-shot generation was correct for 16.7\% [14, 20],
-a baseline that retries on errors or empty results for 22.4\% [19, 26], and the ontology checker for 83.8\%
+a baseline that retries up to three times on errors or empty results for 22.4\% [19, 26], and the ontology checker for 83.8\%
 [81, 87] (checker $-$ retry: +61.5 [+57.0, +65.7]). Of the checker's 1{,}374 findings, 1{,}360 were vocabulary
 violations: Spider4SSC places every table in its own namespace (\texttt{singer:age}, not \texttt{:age}), a convention
 the model rarely followed unaided. Ninety-one queries (16.2\%) passed every check and still returned wrong rows.
 The direction agrees with \citet{allemang2024ontologies}, where ontology checks with LLM repair raised accuracy
 from 54\% (knowledge graph alone~\cite{sequeda2023benchmark}) to 72.55\%, with a further 8\% of questions answered
-``unknown''. Because almost all of our checker's findings concern one naming convention, we added (after review) a
+``unknown''. Because almost all of our checker's findings concern one naming convention, we added a
 baseline whose prompt states the conventions the checker enforces, with no checker. Single-shot, it reached
 78.9\% [75, 82] (+62.2 [+57.7, +66.4] over one-shot); with the same retry-on-error loop as the retry baseline, 81.9\%
 [79, 85]. The checker remains reliably better than the single-shot rule prompt (+5.0 [+2.5, +7.6]) but not than the
@@ -671,7 +695,7 @@ ask for narrative details spread over several tickets, showed no graph advantage
 questions a single passage holds the answer, and on GraphRAG-Bench vector top-8 already retrieved 85--98\% of the
 gold evidence for non-creative questions. A graph method that replaces passages with extracted structure then adds
 indirection---a tool to choose, an extraction step that may lose detail, fewer passages in context---and loses:
-$-50$\pp\ on helpdesk lookups, $-30.3$\pp\ on local podcast questions answered by global search, $-1.5$ to $-3.9$ points on GraphRAG-Bench
+$-50$\pp\ on helpdesk lookups, $-30.3$\pp\ on local podcast questions answered by global search, $-1.6$ to $-3.9$ points on GraphRAG-Bench
 fact retrieval with the simple graph retriever. Summaries and extracted facts are lossy: graph memory forgot what the assistant had said
 ($-39$\pp\ against vector memory). Methods that use the graph only to \emph{rank} passages and keep the passages
 in context avoid most of this loss---the HippoRAG2-style retriever gained +1.0 and +2.7 points on GraphRAG-Bench, and
@@ -680,14 +704,14 @@ where vector retrieval already finds the evidence.
 
 \paragraph{3. A cheap baseline that encodes the same information often matches the graph.} Showing dates matched
 the temporal graph on HoH ($-0.2$\pp); giving the full history beat graph memory on LoCoMo ($-5.5$\pp); stating the
-naming rules in the prompt recovered all but 2--5 points of the ontology checker's +61.5; a
-modern model's own resistance removed 99.6\% of injection attempts before any guardrail. Claims established
+naming rules in the prompt recovered all but 2--5 points of the ontology checker's +61.5. Claims established
 against plain top-$k$ retrieval should be re-tested against the strongest cheap alternative.
 
 \paragraph{4. Enforcement in code adds a guarantee, not a large gain.} Rules checked in code---ontology checks,
 provenance filters (9/10 $\rightarrow$ 0/10) and workflow gates (19 $\rightarrow$ 0 violations), the latter two from small
 instructional samples without a confidence run, and plan graphs (13 $\rightarrow$ 0 of 3{,}162, near the model's own
-floor)---drove violations to zero, because they do not depend on the model being persuaded. Their accuracy gain over a
+floor)---drove violations to zero, because they do not depend on the model being persuaded. The model's own resistance
+already removed 99.6\% of injection attempts before any guardrail. Their accuracy gain over a
 prompt that states the same rules is small: +5.0\pp\ single-shot and +2.0\pp\ (not reliable) with retry on
 Spider4SSC, and the prompt rule alone reduced injection successes from 13 to 1. The value of enforcement is that
 residual violations (12--21 queries; 1 attack) become zero, which matters where a single violation is costly. This
@@ -720,7 +744,7 @@ Claim & Small sample (01--10) & Confidence run (11--19) & Verdict \\
 Graphs help multi-hop questions & MetaQA 2-hop 39\% $\rightarrow$ 97\% (08) & MetaQA, extracted graph: +13 to +67 Hits@1, 11--24 below curated (19); text benchmarks: F1 +4.7 / +11.7, none at 3--4 hops (11) & Holds on relational data; small on text benchmarks \\
 Validity data prevents stale answers & 5/8 $\rightarrow$ 7/8 (04) & 63\% $\rightarrow$ 90\%, but dates alone also 90\% (12) & Dates do the work \\
 Code-enforced guardrails stop attacks & 9/10 $\rightarrow$ 0/10 (05) & 13 $\rightarrow$ 0 of 3{,}162; model itself resists (13) & Untestable at floor \\
-Graph RAG wins reasoning and summaries & No reliable difference (09) & Simple graph retriever not better in 7 of 8 cells; HippoRAG2-style +1.0 / +2.7, mostly on facts (14) & Small gain, not specific to reasoning \\
+Graph RAG wins reasoning and summaries & No reliable difference (09) & Simple graph retriever not better in 7 of 8 cells; HippoRAG2-style +1.0 / +2.7, largest on novel fact retrieval (14) & Small gain, not specific to reasoning \\
 Graph memory beats vector memory & 77\% $\rightarrow$ 83\% (10) & 75\% $\rightarrow$ 79\% (n.s.); full history best on LoCoMo (15) & Depends on history length \\
 Summaries answer whole-collection questions & 6 of 6 judgements (06) & +19.8\pp\ expected content; local questions: global search $-30.3$\pp, local search $-4.3$\pp\ (16) & Holds for global questions, with the matching mode \\
 Ontology checks repair queries & 3/15 $\rightarrow$ 10/15 (07) & 22\% $\rightarrow$ 84\% vs.\ retry; rules in prompt 79--82\% (17) & Mostly the rules' information \\
@@ -750,8 +774,9 @@ choosing one architecture.
   \item \textbf{One implementation per method.} A negative result rules out our HippoRAG-style retrieval, GraphRAG
         configuration or memory design, not every graph method.
   \item \textbf{LLM judges.} Open-ended answers (\nb{01}, 04, 06, 09, 10, 12, 14--16, 18) are judged by the same
-        model that answers; absolute scores are not comparable with papers that use other judges, and self-preference
-        cannot be excluded.
+        model that answers; absolute scores are not comparable with papers that use other judges. A second judge (Section~\ref{sec:setup})
+        confirms \nb{16} and the novel results of \nb{14} but not the small medical gain of the HippoRAG2-style
+        retriever; the other notebooks were not re-judged.
   \item \textbf{Context budgets.} Methods receive comparable but not identical context (e.g.\ five chunks plus
         relations against eight chunks in \nb{14}); some differences may reflect the amount of source text.
   \item \textbf{Missing methods.} \nb{14} does not run MS-GraphRAG; our HippoRAG2-style retriever omits HippoRAG2's
@@ -759,15 +784,19 @@ choosing one architecture.
   \item \textbf{Question sets in \nb{18}.} The templated questions favour the graph agent (gold computed from the
         graph); the questions written from the texts favour text retrieval (writer and validator read text, and some
         ``fix'' questions concern tickets without a recorded fix). Neither set was written by helpdesk staff.
-  \item \textbf{Post-review runs.} The baselines and methods added after review (\nb{14}, 16, 17, 18 and 19) were run
-        later than the original confidence runs; where the Batch queue stalled, remaining requests were sent through the
+  \item \textbf{Two run periods.} The HippoRAG2-style retriever (\nb{14}), GraphRAG local search (16), the rule-prompt
+        baselines (17), the second helpdesk question set (18) and \nb{19} were run later than the other confidence runs,
+        with the same model identifier; where the Batch queue stalled, remaining requests were sent through the
         standard API with the same request bodies.
+  \item \textbf{One run per configuration.} Each confidence run was executed once; its intervals reflect the sampling
+        of questions, not run-to-run variation of the model or alternative implementation choices.
   \item \textbf{Guardrails without scale.} The provenance and workflow results (\nb{05}) rest on 10 questions and
         5 runs; only the plan graph has a confidence run.
-  \item \textbf{Multiple comparisons.} Intervals are unadjusted; two headline differences are borderline after a
+  \item \textbf{Multiple comparisons.} Intervals are unadjusted; three headline differences are borderline after a
         Bonferroni check (Section~\ref{sec:setup}).
   \item \textbf{Benchmark design.} MetaQA contains only graph facts; Spider4SSC's per-table namespaces favour a
-        schema checker; InjecAgent's fixed attacks rarely succeed against the current model.
+        schema checker; InjecAgent's fixed attacks rarely succeed against the current model; \nb{19} samples only questions
+        about films, 21\% of MetaQA's two-hop test questions.
   \item \textbf{Instructional samples.} In 01--07, only the direction of effects is informative; differences of one
         question are within run-to-run variation.
   \item \textbf{Licences.} LoCoMo (CC BY-NC 4.0) and BenchmarkQED (Microsoft Research License) restrict use to
@@ -782,47 +811,57 @@ over typed records, chains through other entities' attributes, the scope of a wh
 in code removed the residual violations that a prompt leaves. They did not improve, and often hurt, single-fact
 lookup, local and narrative questions, and benchmarks where a strong vector baseline already retrieves the evidence.
 A graph extracted by the LLM kept most of a curated graph's advantage on relational questions, at a cost of 11--24
-points; several gains disappeared once the baseline was given the same information in simpler form, in line with recent controlled comparisons of RAG and
-GraphRAG~\cite{han2025ragvsgraphrag,xiang2025graphragbench}. The practical
+points; several gains disappeared once the baseline was given the same information in simpler form. These results agree in
+direction with recent controlled comparisons of RAG and GraphRAG~\cite{han2025ragvsgraphrag,xiang2025graphragbench},
+with smaller graph gains than GraphRAG-Bench reports. The practical
 consequence is to evaluate per question type against the strongest cheap baseline, to report cost next to accuracy,
 and to treat the graph as a source of structure and enforcement rather than as a general improvement to retrieval.
 
 \section*{Availability}
 The notebooks, with their saved outputs, the shared batch helper and the source of this report are at
-\url{https://github.com/trajanov/graphs-for-llm-agents}. The response caches with which each notebook replays its results
-without API access (\texttt{SMASH\_MODE=replay}), the archive of 159{,}932 LLM requests and responses, and the benchmark
-data (about 6\,GB, partly under licences that restrict redistribution) are not in the repository. A script in the
-repository (\texttt{examples/download\_data.py}) fetches every public dataset from its original publisher; the
-caches and archive are available from the author on request. The original confidence runs cost about \$24.7: \$20.85 for 127{,}094 Batch
-requests, \$1.07 for test runs and \$2.81 for embeddings. Their Batch requests exceed the 119{,}808 calls they
-archived by 7{,}286: a partial re-run of \nb{16} after a fix (7{,}172 requests), 112 further \nb{16} requests whose
-responses were replaced, and 2 smoke tests; the archive keeps the final response for each distinct request. The runs
-added after review (\nb{14} and 16--19; 40{,}124 calls) cost about \$3.9, partly at the standard price because four
-stalled batch jobs were cancelled and their remaining requests sent synchronously.
+\url{https://github.com/trajanov/graphs-for-llm-agents}. The repository also contains the generated PlanetCare
+tickets used by notebooks 03 and 06. The other data sets (about 1.5\,GB, partly under licences that restrict
+redistribution) are not in the repository; a script (\texttt{examples/download\_data.py}) fetches each from its
+original publisher. The response caches with which each notebook replays its results without API access
+(\texttt{SMASH\_MODE=replay}) and the archive of 159{,}932 LLM requests and responses (together about 5\,GB) are
+available from the author on request. The first confidence runs cost about \$24.7 as billed: \$20.85 for 127{,}094
+Batch requests, \$1.07 for test runs and \$2.81 for embeddings (Table~\ref{tab:cost}). Their Batch requests exceed the
+119{,}808 calls they archived by 7{,}286: a partial re-run of \nb{16} after a fix (7{,}172 requests), 112 further
+\nb{16} requests whose responses were replaced, and 2 smoke tests; the archive keeps the final response for each
+distinct request. The later runs (\nb{14} and 16--19; 40{,}124 calls) cost about \$3.9, partly at the standard price
+because four stalled batch jobs were cancelled and their remaining requests sent synchronously. The second-judge
+check (\texttt{examples/second\_judge.py}) cost about \$2.7 at the standard price of \texttt{gpt-4.1}.
 
 \appendix
 \section{Cost of the Confidence Runs}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
+\caption{Cost per confidence run in USD (\texttt{gpt-6-luna} except the second judge; Batch API at \$0.05/\$0.25 per million input/output tokens,
+standard API at twice that price for stages sent synchronously). Embeddings are included in each row (\$2.81 in total,
+\$2.59 of them for \nb{15}). Rows are rounded from each notebook's ledger; the billed total of the first runs is
+\$24.73.}
+\label{tab:cost}
 \begin{tabular}{@{}llrr@{}}
 \toprule
-NB & Benchmark & Original & After review \\
+NB & Benchmark & First runs & Later runs \\
 \midrule
 11 & MuSiQue + 2WikiMultiHopQA & 2.52 & -- \\
 12 & HoH & 0.18 & -- \\
 13 & InjecAgent & 0.71 & -- \\
 14 & GraphRAG-Bench (both domains) & 3.34 & 1.99 \\
-15 & LongMemEval-S + LoCoMo (incl.\ \$2.59 embeddings) & 12.12 & -- \\
+15 & LongMemEval-S + LoCoMo & 12.12 & -- \\
 16 & BenchmarkQED podcasts (incl.\ one re-run) & 4.70 & 0.08 \\
 17 & Spider4SSC & 0.10 & 0.03 \\
 18 & Aura helpdesk & 0.05 & 0.22 \\
 19 & MetaQA with WikiMovies articles & -- & 1.53 \\
+-- & Test runs (all notebooks) & 1.07 & -- \\
+14, 16 & Second judge (\texttt{gpt-4.1}, \$2/\$8 per million tokens) & -- & 2.66 \\
+\midrule
+ & Total & 24.79 & 6.51 \\
 \bottomrule
 \end{tabular}
-\caption{Cost per confidence run in USD (\texttt{gpt-6-luna}; Batch API at \$0.05/\$0.25 per million input/output tokens,
-standard API at twice that price for stages sent synchronously).}
 \end{table}
 
 \bibliographystyle{plainnat}

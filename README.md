@@ -11,6 +11,7 @@ generation and guardrails.
 | [`examples/`](examples/) | Notebooks 01–19 with their saved outputs; see [`examples/README.md`](examples/README.md) |
 | `examples/smash_batch.py` | Shared OpenAI helper for notebooks 11–19 (Batch API, response cache, statistics) |
 | `examples/export_llm_io.py` | Archives every LLM request and response of the scaled runs |
+| `examples/second_judge.py` | Re-scores notebooks 14 and 16 with a second judge model (`gpt-4.1`) from that archive |
 
 - Notebooks 01–10 use `gpt-4o-mini`.
 - Notebooks 11–19 are the confidence runs, using `gpt-6-luna` without reasoning through the OpenAI Batch API.

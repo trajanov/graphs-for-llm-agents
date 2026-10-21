@@ -1,0 +1,11 @@
+# Versions used for the saved runs (Python 3.13).
+openai==3.16.2
+pydantic==2.13.5
+numpy==2.5.3
+scipy==1.18.1
+networkx==3.7
+duckdb==1.5.5
+rdflib==7.6.0
+pydot==4.0.1
+ipykernel==7.4.0
+nbclient==0.11.0

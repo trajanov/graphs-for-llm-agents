@@ -9,6 +9,7 @@
 !/examples/*.ipynb
 !/examples/*.py
 !/examples/README.md
+!/examples/requirements.txt
 !/examples/data/
 /examples/data/*
 !/examples/data/PLANETCARE.md

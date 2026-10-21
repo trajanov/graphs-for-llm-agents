@@ -96,13 +96,15 @@ for a small live sample, or with `SMASH_MODE=batch` to recompute everything (nee
 
 ## Quick start
 
-The notebooks read `OPENAI_API_KEY` from the environment and use the course venv. That venv has a Jupyter kernel
-registered as **`smash-workshop-venv`**.
+The notebooks read `OPENAI_API_KEY` from the environment. The saved runs used Python 3.13 and the package versions
+in [`requirements.txt`](requirements.txt).
 
 ```bash
-# Course venv (openai, networkx, duckdb, pydantic, numpy, scikit-learn, pydot, rdflib, nbclient):
-"/Users/dt/cc/AI and Data Utilization - WS/.venv/bin/python" -V
-"/Users/dt/cc/AI and Data Utilization - WS/.venv/bin/jupyter" kernelspec list
+cd examples
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m ipykernel install --user --name smash-workshop-venv
+python download_data.py
 ```
 
 Open a notebook, select the `smash-workshop-venv` kernel, and run all cells top to bottom. Every notebook is
