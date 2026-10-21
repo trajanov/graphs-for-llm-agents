@@ -67,21 +67,32 @@ LLM outputs vary slightly between runs even at temperature 0 (typically ±1 ques
 
 ## Datasets (`data/`)
 
-| Path | Description |
-| :--- | :--- |
-| `aura_helpdesk.json` | Synthetic IT-helpdesk knowledge graph for the 3DS "Aura" support chatbot (source: `AlexisBalayre/AuraHelpdeskGraph`): 23 tickets, 57 comments, 10 KB articles, 7 statuses, 10 users, 246 Cypher-derived relationships. `cat_010` is referenced but not defined in the source. Used by notebooks 1, 5 and 7. |
-| `planetcare_tickets.json` / `planetcare_kb.json` / `planetcare_wiki/` | 183 PlanetCare hospital EHR support tickets across 10 hospitals, 3 existing KB articles, and the team's wiki pages. Used by notebooks 3 and 6. |
-| `runbooks/documents.jsonl` / `runbooks/questions.jsonl` | 58 SOC incident-response runbooks (29 English + 29 Farsi) with version and supersession metadata, plus a 100-question benchmark including `ransomware-stale` and `cloud-owner-conflict` families. Used by notebook 4. |
-| `telecom_workflow/` | τ²-bench telecom-support Graphviz flowcharts and matching customer scenarios. Used by notebook 5. |
-| `/Users/dt/cc/AI and Data Utilization - WS/data/course.duckdb` (`incidents` schema) | The UCI ServiceNow incident-management event log: 119,998 events and 20,769 incidents. Opened read-only by notebook 2. |
-| `benchmarks/musique_2wiki/` | MuSiQue and 2WikiMultiHopQA, 1,000 dev questions each with their passage pools (HippoRAG 2 release, `osunlp/HippoRAG_2`). Notebook 11. ≈2.6 GB, mostly cached embedding matrices. |
-| `benchmarks/hoh/` | HoH-QAs (`russwest404/HoH-QAs`, Apache-2.0): 111,972 questions with current and outdated Wikipedia evidence. Notebook 12. |
-| `benchmarks/injecagent/` | InjecAgent test cases, tool specs and simulated attacker responses (`uiuc-kang-lab/InjecAgent`, MIT). Notebook 13. |
-| `benchmarks/graphrag_bench/` | GraphRAG-Bench medical + novel corpora and questions (MIT). Notebooks 9 and 14. |
-| `benchmarks/longmemeval/`, `benchmarks/locomo/` | LongMemEval-S cleaned (MIT); LoCoMo 10 conversations (`snap-research/locomo`, **CC BY-NC 4.0**). Notebooks 10 and 15. |
-| `benchmarks/benchmarkqed_podcast/` | "Behind the Tech" transcripts with BenchmarkQED global/local questions and assertions (`microsoft/benchmark-qed`, **Microsoft Research License: non-commercial research use**). Notebook 16. |
-| `benchmarks/spider4ssc/` | Spider4SSC dev split with RDF graphs and schemas (Mendeley Data `4dnvv92trn`, Apache-2.0; Spider CC BY-SA). Notebook 17. |
-| `llm_io/` | Archive of every LLM request and response of notebooks 11-18 (see above). |
+The data is not part of the repository. `python download_data.py` fetches every dataset from its original
+publisher into `data/` (about 1.5 GB). `python download_data.py <name> ...` fetches only some datasets, and
+`python download_data.py --list` shows the datasets, the notebooks that use them and their licences. Existing
+files are skipped.
+
+| Name | Path | Notebooks | Source | Licence |
+| :--- | :--- | :--- | :--- | :--- |
+| `aura` | `aura_helpdesk.json` | 01, 05, 07, 18 | [AlexisBalayre/AuraHelpdeskGraph](https://github.com/AlexisBalayre/AuraHelpdeskGraph): the sample CSVs, with relationships rebuilt from its Neo4j load script | none stated |
+| — | `planetcare_*` | 03, 06 | PlanetCare hospital EHR support tickets; not public | — |
+| `runbooks` | `runbooks/` | 04 | [AriaAICompany/incident-rag-runbooks](https://huggingface.co/datasets/AriaAICompany/incident-rag-runbooks) | CC BY 4.0 |
+| `telecom` | `telecom_workflow/` | 05 | [τ²-bench](https://github.com/sierra-research/tau2-bench) telecom domain | MIT |
+| `incidents` | `servicenow_incidents.duckdb` | 02 | [UCI incident management event log](https://archive.ics.uci.edu/dataset/498/incident+management+process+enriched+event+log): its first 119,998 rows, 20,769 incidents | CC BY 4.0 |
+| `metaqa` | `benchmarks/metaqa/` | 08, 19 | [MetaQA](https://github.com/yuyuz/MetaQA) (Hugging Face copy `camazlucas/MetaQA`) | Creative Commons |
+| `wikimovies` | `benchmarks/metaqa/wikimovies_text/` | 19 | WikiMovies article text from the MovieQA release (Miller et al., 2016), via the Internet Archive | CC BY 3.0 |
+| `musique_2wiki` | `benchmarks/musique_2wiki/` | 11 | [HippoRAG 2 release](https://huggingface.co/datasets/osunlp/HippoRAG_2) of MuSiQue and 2WikiMultiHopQA | CC BY 4.0 / Apache-2.0 |
+| `graphrag_bench` | `benchmarks/graphrag_bench/` | 09, 14 | [GraphRAG-Bench](https://huggingface.co/datasets/GraphRAG-Bench/GraphRAG-Bench) | MIT |
+| `hoh` | `benchmarks/hoh/` | 12 | [HoH-QAs](https://huggingface.co/datasets/russwest404/HoH-QAs) | Apache-2.0 |
+| `injecagent` | `benchmarks/injecagent/` | 13 | [InjecAgent](https://github.com/uiuc-kang-lab/InjecAgent) | MIT |
+| `longmemeval` | `benchmarks/longmemeval/` | 10, 15 | [LongMemEval-S, cleaned](https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned) | MIT |
+| `locomo` | `benchmarks/locomo/` | 15 | [LoCoMo](https://github.com/snap-research/locomo) | **CC BY-NC 4.0** |
+| `benchmarkqed` | `benchmarks/benchmarkqed_podcast/` | 16 | [BenchmarkQED](https://github.com/microsoft/benchmark-qed) podcast transcripts and questions | **Microsoft Research License** (non-commercial) |
+| `spider4ssc` | `benchmarks/spider4ssc/` | 17 | [Spider4SSC](https://data.mendeley.com/datasets/4dnvv92trn), Mendeley Data v2 | CC BY 4.0 (Spider: CC BY-SA 4.0) |
+
+Notebooks 08-19 also keep their LLM responses and embeddings in cache folders next to the data
+(`cache*/`, `data/cache_18/`). These are not in the repository. Without them, run a notebook with `SMASH_MODE=test`
+for a small live sample, or with `SMASH_MODE=batch` to recompute everything (needs `OPENAI_API_KEY`).
 
 ## Quick start
 

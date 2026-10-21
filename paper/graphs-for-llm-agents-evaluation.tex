@@ -791,8 +791,9 @@ and to treat the graph as a source of structure and enforcement rather than as a
 The notebooks, with their saved outputs, the shared batch helper and the source of this report are at
 \url{https://github.com/trajanov/graphs-for-llm-agents}. The response caches with which each notebook replays its results
 without API access (\texttt{SMASH\_MODE=replay}), the archive of 159{,}932 LLM requests and responses, and the benchmark
-data (about 6\,GB, partly under licences that restrict redistribution) are not in the repository; the benchmarks are
-public, and the caches and archive are available from the author on request. The original confidence runs cost about \$24.7: \$20.85 for 127{,}094 Batch
+data (about 6\,GB, partly under licences that restrict redistribution) are not in the repository. A script in the
+repository (\texttt{examples/download\_data.py}) fetches every public dataset from its original publisher; the
+caches and archive are available from the author on request. The original confidence runs cost about \$24.7: \$20.85 for 127{,}094 Batch
 requests, \$1.07 for test runs and \$2.81 for embeddings. Their Batch requests exceed the 119{,}808 calls they
 archived by 7{,}286: a partial re-run of \nb{16} after a fix (7{,}172 requests), 112 further \nb{16} requests whose
 responses were replaced, and 2 smoke tests; the archive keeps the final response for each distinct request. The runs

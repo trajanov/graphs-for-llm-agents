@@ -15,23 +15,24 @@ generation and guardrails.
 - Notebooks 01–10 use `gpt-4o-mini`.
 - Notebooks 11–19 are the confidence runs, using `gpt-6-luna` without reasoning through the OpenAI Batch API.
 
-## What is not in this repository
+## Data
 
-The repository holds code, notebooks and the report only. It leaves out three things, about 6 GB in total:
+No data is stored in this repository. To fetch each dataset from its original publisher into `examples/data/`
+(about 1.5 GB), run:
 
-- the benchmark data;
-- the response caches that let a notebook replay without API calls;
-- the archive of LLM requests and responses.
+```bash
+cd examples
+python download_data.py            # all datasets
+python download_data.py --list     # datasets, notebooks and licences
+```
 
-Some of the benchmarks are licensed for non-commercial research only, e.g. LoCoMo (CC BY-NC 4.0) and BenchmarkQED
-(Microsoft Research License).
+[`examples/README.md`](examples/README.md#datasets-data) lists the sources and licences. Two benchmarks allow
+non-commercial research only: LoCoMo (CC BY-NC 4.0) and BenchmarkQED (Microsoft Research License). The PlanetCare
+tickets used by notebooks 03 and 06 are not public.
 
-All benchmarks are public: MetaQA, WikiMovies, MuSiQue, 2WikiMultiHopQA, HoH, InjecAgent, GraphRAG-Bench,
-LongMemEval, LoCoMo, BenchmarkQED and Spider4SSC. The notebooks expect them under `examples/data/benchmarks/<name>/`.
-The caches and the archive are available from the author on request.
+The response caches and the archive of LLM requests and responses (about 5 GB) are not in the repository either;
+they are available from the author on request. Without them a notebook shows its saved outputs, and you can re-run
+it as follows (both need `OPENAI_API_KEY`):
 
-To re-run a notebook without the cache:
-
-- `SMASH_MODE=test` runs a small sample live.
+- `SMASH_MODE=test` runs a small live sample;
 - `SMASH_MODE=batch` recomputes everything through the Batch API.
-- Both need `OPENAI_API_KEY`.
