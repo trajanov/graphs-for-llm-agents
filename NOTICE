@@ -1,0 +1,11 @@
+Where Do Knowledge Graphs Help LLM Agents? -- notebooks and code
+Copyright 2026 Dimitar Trajanov
+
+This product includes software developed by Dimitar Trajanov
+(https://github.com/trajanov/graphs-for-llm-agents).
+
+Licensed under the Apache License, Version 2.0 (see LICENSE). Redistributions and derivative works must keep this
+NOTICE file, or its attribution text, as required by Section 4(d) of the License.
+
+The report in paper/ and the PlanetCare data set are licensed separately under CC BY 4.0
+(see LICENSE-CC-BY-4.0.md).

@@ -7,5 +7,5 @@ The report in `paper/` and the PlanetCare data set in `examples/data/` (`PLANETC
 https://creativecommons.org/licenses/by/4.0/
 
 You may share and adapt them for any purpose, including commercially, provided you give appropriate credit, link to
-the licence and indicate if changes were made. The code is licensed under MIT (see `LICENSE`). Third-party data sets
+the licence and indicate if changes were made. The code is licensed under Apache 2.0 (see `LICENSE` and `NOTICE`). Third-party data sets
 fetched by `examples/download_data.py` keep their own licences; see `examples/README.md`.
