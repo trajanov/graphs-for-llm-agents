@@ -46,6 +46,7 @@ recomputes anything missing through the Batch API.
 | [`16_scaled_benchmarkqed_global_sensemaking`](16_scaled_benchmarkqed_global_sensemaking.ipynb) | 06 | BenchmarkQED podcast corpus, 50 global + 50 local questions | global questions: assertions covered 57% → **77%** (+19.8 [+14.9, +24.6]), judge prefers GraphRAG 90-92% on 3 of 4 criteria; local control: vector 100% vs graph 70% | $4.7* |
 | [`17_scaled_spider4ssc_ontology_checked_sparql`](17_scaled_spider4ssc_ontology_checked_sparql.ipynb) | 07 | Spider4SSC text-to-SPARQL, 563 questions / 19 graphs | one-shot 17%, error/empty retry 22%, ontology checker **84%**; the gain is almost all vocabulary (prefix) errors | $0.10 |
 | [`18_scaled_aura_template_questions`](18_scaled_aura_template_questions.ipynb) | 01 | Aura helpdesk, 156 template questions | lookup: vector 97% vs graph 47%; verified fix 73% vs **89%**; relational 46% vs **98%** | $0.05 |
+| [`20_scaled_citation_accuracy_graph_vs_vector`](20_scaled_citation_accuracy_graph_vs_vector.ipynb) | 11 | MuSiQue + 2WikiMultiHopQA, 2 × 1,000; answers must cite sources (vector passages, graph passages, graph facts resolved to their source passage); ALCE-style citation recall and precision | *pending the full run* (only a 25-question test run so far) | — |
 
 \* includes one re-run after a reproducibility fix.
 
