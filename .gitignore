@@ -1,4 +1,4 @@
-# Whitelist: only code, notebooks and the paper are versioned.
+# Whitelist: only code and notebooks are versioned (the paper lives on Overleaf).
 /*
 !/README.md
 !/.gitignore
@@ -6,10 +6,15 @@
 !/NOTICE
 !/LICENSE-CC-BY-4.0.md
 !/examples/
-!/paper/
 
 /examples/*
 !/examples/*.ipynb
+!/examples/1_retrieval_and_reasoning/
+!/examples/2_memory_and_state/
+!/examples/3_governance_and_control/
+!/examples/4_execution_and_coordination/
+!/examples/5_graph_construction/
+!/examples/archive/
 !/examples/*.py
 !/examples/README.md
 !/examples/requirements.txt
@@ -20,10 +25,6 @@
 !/examples/data/planetcare_kb.json
 !/examples/data/planetcare_wiki/
 
-/paper/*
-!/paper/graphs-for-llm-agents-evaluation.tex
-!/paper/graphs-for-llm-agents-evaluation.pdf
-!/paper/references.bib
-
 .DS_Store
 __pycache__/
+.ipynb_checkpoints/

@@ -65,8 +65,13 @@ def paired_boot(a, b, n=5000, seed=7):
 
 
 class LLM:
-    def __init__(self, cache_dir, mode=None, workers=16, poll=30):
+    def __init__(self, cache_dir, mode=None, workers=16, poll=30, replay_by_key=None):
         self.cache, self.mode = cache_dir, mode or mode_from_env()
+        # replay_by_key: in replay mode, accept a cached row whose key matches even if the body hash differs.
+        # Off by default (a changed prompt must not silently reuse an old answer). Notebook 19 turns it on because
+        # its graph tool lists neighbours in set order, which depends on Python's string hash seed, so the same
+        # request can serialise differently in another process (contents identical, order different).
+        self.replay_by_key = (os.environ.get("SMASH_REPLAY_BY_KEY") == "1") if replay_by_key is None else replay_by_key
         self.workers, self.poll = workers, poll
         os.makedirs(cache_dir, exist_ok=True)
         self._client = None
@@ -134,6 +139,12 @@ class LLM:
         rows = self.rows(stage)
         todo = {k: b for k, b in requests.items()
                 if k not in rows or rows[k]["h"] != self._hash(b) or "error" in rows[k]["r"]}
+        if todo and self.mode == "replay" and self.replay_by_key:
+            n_key = sum(1 for k in todo if k in rows and "error" not in rows[k]["r"])
+            todo = {k: b for k, b in todo.items() if k not in rows or "error" in rows[k]["r"]}
+            if n_key:
+                print(f"[{stage}] replay by key: {n_key:,} cached rows matched by key only (body order differs)",
+                      flush=True)
         if todo:
             if self.mode == "replay":
                 raise RuntimeError(f"stage '{stage}': {len(todo)} of {len(requests)} requests are not cached - "
@@ -247,7 +258,11 @@ class LLM:
             save()
             time.sleep(self.poll)
             for bid, fid in list(st["running"].items()):
-                bt = self.client.batches.retrieve(bid)
+                try:
+                    bt = self.client.batches.retrieve(bid)
+                except Exception as e:  # noqa: BLE001 - a network blip while polling; try again next round
+                    print(f"  [{stage}] poll of {bid} failed ({type(e).__name__}); retrying", flush=True)
+                    continue
                 if bt.status not in ("completed", "expired", "cancelled", "failed"):
                     continue
                 del st["running"][bid]
