@@ -158,7 +158,7 @@ files are skipped.
 | —                | `benchmarks/toolbench/`              | 4.2             | ToolBench test queries and API corpus, pinned third-party copy (checksums in `SHA256SUMS`); **not fetched yet** | Apache-2.0 |
 | —                | `benchmarks/tau2/`                   | 4.3, 4.4         | [τ²-bench](https://github.com/sierra-research/tau2-bench) full checkout at commit `96a3ef9` (installed in `.venv-tau2`); **not fetched yet** | MIT |
 | —                | `benchmarks/planetcare_access/`      | 3.5             | Synthetic users, roles and permissions over the PlanetCare tickets, written by notebook 3.5's seeded generator | CC BY 4.0 (ours) |
-| —                | `benchmarks/audit_trail/`            | 3.6             | Audit questions built by notebook 3.6 from the cached traces of notebooks 3.4, 1.1b, 19 | as its sources |
+| —                | `benchmarks/audit_trail/`            | 3.6             | Audit questions built by notebook 3.6 from the cached traces of notebooks 3.4, 1.1b, 1.2b | as its sources |
 
 All scaled notebooks also keep their LLM responses and embeddings in cache folders next to the data
 (`cache*/`, `data/cache_18/`). These are not in the repository. Without them, run a notebook with `SMASH_MODE=test`
